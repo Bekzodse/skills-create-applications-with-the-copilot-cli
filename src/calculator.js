@@ -5,11 +5,44 @@
 // - subtraction
 // * multiplication
 // / division
+// % modulo
+// ^ exponentiation
+// sqrt square root
 
-function calculate(left, operator, right) {
-  if (!Number.isFinite(left) || !Number.isFinite(right)) {
+function validateNumber(value) {
+  if (!Number.isFinite(value)) {
     throw new Error('Both operands must be valid numbers.');
   }
+}
+
+function modulo(a, b) {
+  validateNumber(a);
+  validateNumber(b);
+  if (b === 0) {
+    throw new Error('Modulo by zero is not allowed.');
+  }
+  return a % b;
+}
+
+function power(base, exponent) {
+  validateNumber(base);
+  validateNumber(exponent);
+  return base ** exponent;
+}
+
+function squareRoot(n) {
+  if (!Number.isFinite(n)) {
+    throw new Error('The operand must be a valid number.');
+  }
+  if (n < 0) {
+    throw new Error('Square root of a negative number is not allowed.');
+  }
+  return Math.sqrt(n);
+}
+
+function calculate(left, operator, right) {
+  validateNumber(left);
+  validateNumber(right);
 
   switch (operator) {
     case '+':
@@ -23,6 +56,10 @@ function calculate(left, operator, right) {
         throw new Error('Division by zero is not allowed.');
       }
       return left / right;
+    case '%':
+      return modulo(left, right);
+    case '^':
+      return power(left, right);
     default:
       throw new Error(`Unsupported operation: ${operator}`);
   }
@@ -31,8 +68,16 @@ function calculate(left, operator, right) {
 function main() {
   const [, , leftInput, operator, rightInput] = process.argv;
 
+  if (operator === 'sqrt') {
+    if (leftInput === undefined || rightInput !== undefined) {
+      throw new Error('Usage: node src/calculator.js <number> sqrt');
+    }
+    console.log(squareRoot(Number(leftInput)));
+    return;
+  }
+
   if (leftInput === undefined || operator === undefined || rightInput === undefined) {
-    throw new Error('Usage: node src/calculator.js <number> <+|-|*> <number>');
+    throw new Error('Usage: node src/calculator.js <number> <+|-|*|/|%|^> <number>');
   }
 
   const result = calculate(Number(leftInput), operator, Number(rightInput));
@@ -48,4 +93,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { calculate };
+module.exports = { calculate, modulo, power, squareRoot };
